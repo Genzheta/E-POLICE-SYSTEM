@@ -1,3 +1,5 @@
+// models/Fine.js
+
 const mongoose = require('mongoose');
 
 const fineSchema = new mongoose.Schema({

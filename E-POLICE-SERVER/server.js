@@ -4,9 +4,8 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-//const mongoose = require("mongoose");
 const connectDB = require("./config/db");
-
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
 
@@ -18,25 +17,26 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+//console.log ("Setting up routes...");
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/officer", require("./routes/policeRoutes"));
 app.use("/api/citizen", require("./routes/citizenRoutes"));
 
-
-// Test Route
+// ✅ Test Route MUST come before error middleware
 app.get("/", (req, res) => {
     res.send("E-Police Server Running Successfully 🚔");
 });
 
-// MongoDB Connection
-//mongoose.connect(process.env.MONGO_URI)
-//.then(() => console.log("MongoDB Connected"))
-//.catch((err) => console.log(err));
+// 404 middleware
+app.use(notFound);
+
+// Centralized error handler
+app.use(errorHandler);
 
 // Start Server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`E-Police Server is up and running at http://localhost:${PORT}`);
 });
-

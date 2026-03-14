@@ -13,50 +13,92 @@ const generateToken = (user) => {
   );
 };
 
+// ========================
 // Register new user
-exports.registerUser = async (req, res) => {
+// ========================
+exports.registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "Email already exists" });
+    if (existingUser) {
+      res.status(400);
+      return next(new Error("Email already exists"));
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // Create user (password will be hashed in User model pre-save hook)
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
       role: role || "citizen",
     });
 
+    // Generate JWT token
     const token = generateToken(user);
-    res.status(201).json({ user, token });
+
+    // Send response (without password)
+    res.status(201).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error); // pass to centralized error middleware
   }
 };
 
+// ========================
 // Login user
-exports.loginUser = async (req, res) => {
+// ========================
+exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    // Find user by email
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      res.status(400);
+      return next(new Error("Invalid credentials"));
+    }
 
+    // Check password using bcrypt
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      res.status(400);
+      return next(new Error("Invalid credentials"));
+    }
 
+    // Generate token
     const token = generateToken(user);
-    res.status(200).json({ user, token });
+
+    // Send response (without password)
+    res.status(200).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
+// ========================
 // Logout user
-exports.logoutUser = async (req, res) => {
-  res.status(200).json({ message: "User logged out successfully" });
+// ========================
+exports.logoutUser = async (req, res, next) => {
+  try {
+    res.status(200).json({ message: "User logged out successfully" });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -54,6 +54,70 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
+// View complaint by ID
+exports.viewComplaintById = async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id)
+      .populate("citizen", "name email");
+
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    res.status(200).json(complaint);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update complaint 
+exports.updateComplaint = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const complaint = await Complaint.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).populate("citizen", "name email");
+
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    res.status(200).json(complaint);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// Issue a fine
+exports.issueFine = async (req, res) => {
+  try {
+    const { complaint, amount, issuedTo, dueDate } = req.body;
+    
+    if (!complaint || !amount || !issuedTo || !dueDate) {
+      return res.status(400).json({ message: "All required fields must be provided." });
+    }
+
+    const fine = await Fine.create({
+      complaint,
+      amount,
+      issuedBy: req.user._id, // officer from auth middleware
+      issuedTo,
+      dueDate
+    });
+
+    res.status(201).json(fine);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Generate summary report
 exports.generateReport = async (req, res) => {
   try {
