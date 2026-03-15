@@ -1,5 +1,3 @@
-//server.js
-
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -17,15 +15,14 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-//console.log ("Setting up routes...");
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/officer", require("./routes/policeRoutes"));
 app.use("/api/citizen", require("./routes/citizenRoutes"));
 
-// ✅ Test Route MUST come before error middleware
+// Test Route (must be before error middleware)
 app.get("/", (req, res) => {
-    res.send("E-Police Server Running Successfully 🚔");
+  res.send("E-Police Server Running Successfully 🚔");
 });
 
 // 404 middleware
@@ -34,9 +31,15 @@ app.use(notFound);
 // Centralized error handler
 app.use(errorHandler);
 
-// Start Server
+// Start server ONLY if not running tests
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`E-Police Server is up and running at http://localhost:${PORT}`);
-});
+  });
+}
+
+// Export app for testing
+module.exports = app;
