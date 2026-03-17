@@ -1,3 +1,5 @@
+// controllers/citizenController.js
+
 const Complaint = require("../models/Complaint");
 const Fine = require("../models/Fine");
 
@@ -78,5 +80,22 @@ exports.generateReport = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.submitComplaint = async (req, res) => {
+  try {
+    const { title, description, location } = req.body;
+
+    const complaint = await Complaint.create({
+      title,
+      description,
+      location,
+      citizen: req.user._id
+    });
+
+    res.status(201).json(complaint); // <-- check this line
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

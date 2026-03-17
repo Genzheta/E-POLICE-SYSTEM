@@ -1,3 +1,5 @@
+// controllers/adminController.js
+
 const User = require("../models/User");
 const Complaint = require("../models/Complaint");
 const Fine = require("../models/Fine");

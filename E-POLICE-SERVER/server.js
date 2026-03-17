@@ -1,14 +1,26 @@
+// server.js
+
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+// Import database connection
 const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
-
+// Initialize Express app
 const app = express();
 
-// Connect Database
-connectDB();
+// Set Mongoose strictQuery globally (Mongoose 9+)
+const mongoose = require("mongoose");
+
+// New rule for Mongoose 9+
+mongoose.set("strictQuery", true);
+
+// Connect to MongoDB
+if (process.env.NODE_ENV !== "test") {
+  connectDB();
+}
 
 // Middleware
 app.use(cors());
@@ -34,6 +46,7 @@ app.use(errorHandler);
 // Start server ONLY if not running tests
 const PORT = process.env.PORT || 4000;
 
+// Only start the server if not in test mode
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
