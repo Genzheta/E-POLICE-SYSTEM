@@ -1,4 +1,5 @@
 //src/app/components/LoginPage.tsx
+import { toast } from 'sonner';
 
 import { useState } from 'react';
 import { Button } from './ui/button';
@@ -10,7 +11,7 @@ import { Shield, UserCircle, ShieldAlert, Lock } from 'lucide-react';
 
 interface LoginPageProps {
   role: 'citizen' | 'police' | 'admin';
-  onLogin: (email: string, password: string, role: 'citizen' | 'police' | 'admin') => void;
+  onLogin: (email: string, password: string, role: 'citizen' | 'police' | 'admin') => boolean | void;
   onBack: () => void;
 }
 
@@ -28,13 +29,23 @@ export function LoginPage({ role, onLogin, onBack }: LoginPageProps) {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(email, password, role);
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    const success = onLogin(email, password, role);
+    if (success === false) {
+      toast.error('Invalid email or password');
+    }
   };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (registerData.password === registerData.confirmPassword) {
+      // automatically log them in for mock
       onLogin(registerData.email, registerData.password, 'citizen');
+    } else {
+      toast.error('Passwords do not match');
     }
   };
 

@@ -1,31 +1,37 @@
 describe("Citizen Complaint Workflow", () => {
-
   it("Citizen logs in and submits a complaint", () => {
-
-    // Visit login page
-    cy.visit("/login");
-
+    cy.visit("/");
+    
     // Login as citizen
-    cy.get('input[name="email"]').type("citizen@test.com");
-    cy.get('input[name="password"]').type("123456");
-
+    cy.contains("Citizen Portal").click();
+    cy.get("#email").type("demo@citizen.com");
+    cy.get("#password").type("demo123");
     cy.get('button[type="submit"]').click();
-
-    // Verify login success
-    cy.contains("Dashboard");
-
-    // Go to complaint page
-    cy.visit("/complaint");
-
-    // Fill complaint form
-    cy.get('textarea[name="description"]').type("Illegal parking near school");
-
-    // Submit complaint
-    cy.get('button[type="submit"]').click();
-
-    // Verify success message
-    cy.contains("Complaint submitted");
-
+    
+    // Verify dashboard
+    cy.contains("Welcome back").should("exist");
+    
+    // Go to complaints tab
+    cy.contains("button", "Complaints").click();
+    
+    // Wait for the form to appear
+    cy.contains("Submit New Complaint").should("exist");
+    
+    // The select component from Radix is hard to interact with via naive cy.get, 
+    // but the location and description are standard inputs.
+    cy.contains("Select type").click({force: true});
+    cy.get('[role="option"]').contains("Noise Complaint").click({force: true});
+    
+    cy.get("#location").type("Main Street");
+    cy.get("textarea#description").type("Illegal parking near school");
+    
+    // Submit
+    cy.contains('button', 'Submit Complaint').click();
+    
+    // Verify success toast
+    cy.contains("Complaint submitted successfully").should("exist");
+    
+    // Take screenshot evidence
+    cy.screenshot("evidence-citizen-complaint");
   });
-
 });

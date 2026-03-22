@@ -33,6 +33,12 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
+window.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // ============================
 // Start MSW
 // ============================

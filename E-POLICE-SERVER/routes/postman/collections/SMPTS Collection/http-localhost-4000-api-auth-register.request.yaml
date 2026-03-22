@@ -1,0 +1,10 @@
+$kind: http-request
+name: http://localhost:4000/api/auth/register
+url: http://localhost:4000/api/auth/register
+method: POST
+body:
+  type: json
+  content: ""
+auth:
+  type: noauth
+order: 1774174084864

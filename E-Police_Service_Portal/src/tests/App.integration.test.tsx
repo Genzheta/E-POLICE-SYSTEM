@@ -29,8 +29,8 @@ describe('E-Police System Integration Tests', () => {
     const emailInput = screen.getByPlaceholderText(/enter your email/i);
     const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     
-    // Matches LoginPage.tsx: <Button>Secure Login</Button>
-    const loginBtn = screen.getByRole('button', { name: /secure login/i });
+    // Matches LoginPage.tsx: <Button>Login</Button>
+    const loginBtn = screen.getByRole('button', { name: /^login$/i });
 
     fireEvent.change(emailInput, { target: { value: 'demo@citizen.com' } });
     fireEvent.change(passwordInput, { target: { value: 'demo123' } });
@@ -93,6 +93,82 @@ describe('E-Police System Integration Tests', () => {
     // 3. Verify Admin Dashboard (Matches AdminDashboard.tsx <CardTitle>)
     await waitFor(() => {
       expect(screen.getByText(/admin control panel/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should display an error toast for invalid login credentials', async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /citizen portal/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/citizen portal/i)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), { target: { value: 'wrong@email.com' } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: 'wrongpass' } });
+    fireEvent.click(screen.getByRole('button', { name: /^login$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should display an error toast for empty form submission', async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /police login/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/police officer login/i)).toBeInTheDocument();
+    });
+
+    const emailInput = screen.getByPlaceholderText(/enter your email/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
+    
+    // Check native HTML5 validation
+    expect(emailInput).toBeRequired();
+    expect(passwordInput).toBeRequired();
+
+    // Submit without filling anything by targeting the form directly to bypass jsdom HTML5 validation block
+    const form = screen.getByRole('button', { name: /secure login/i }).closest('form');
+    fireEvent.submit(form!);
+
+    await waitFor(() => {
+      expect(screen.getByText(/please fill in all fields/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should prevent unauthorized access to dashboard routes', () => {
+    render(<App />);
+    // Since access is state-controlled, the dashboard shouldn't exist in the DOM initially.
+    expect(screen.queryByText(/officer dashboard/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/admin control panel/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/welcome back/i)).not.toBeInTheDocument();
+  });
+
+  it('should handle the logout flow correctly', async () => {
+    render(<App />);
+    // 1. Login as Admin
+    fireEvent.click(screen.getByRole('button', { name: /admin access/i }));
+    await waitFor(() => expect(screen.getAllByText(/admin access/i).length).toBeGreaterThan(0));
+    
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), { target: { value: 'admin@epolice.gov' } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: 'admin123' } });
+    fireEvent.click(screen.getByRole('button', { name: /secure login/i }));
+
+    // 2. Wait for Dashboard, get Logout button
+    let logoutBtns: HTMLElement[] = [];
+    await waitFor(() => {
+      expect(screen.getByText(/admin control panel/i)).toBeInTheDocument();
+      logoutBtns = screen.getAllByRole('button', { name: /logout/i });
+      expect(logoutBtns.length).toBeGreaterThan(0);
+    });
+
+    // 3. Click Logout
+    fireEvent.click(logoutBtns[0]);
+
+    // 4. Verify returning to landing page
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /citizen portal/i })).toBeInTheDocument();
     });
   });
 });

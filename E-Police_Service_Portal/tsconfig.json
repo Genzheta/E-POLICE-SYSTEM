@@ -21,6 +21,6 @@
     "src/main.tsx",
     "src/**/*.ts",
     "src/**/*.tsx"
-, "src /index.ts", "src /setupTests.ts"  ],
+, "src/index.ts", "src/setupTests.ts"  ],
   "exclude": ["node_modules", "dist"]
 }

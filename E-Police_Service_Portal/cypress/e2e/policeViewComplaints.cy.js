@@ -1,24 +1,24 @@
 describe("Police Complaint Management", () => {
-
   it("Police logs in and views complaints", () => {
-
-    cy.visit("/login");
-
+    cy.visit("/");
+    
     // Login as police
-    cy.get('input[name="email"]').type("police@test.com");
-    cy.get('input[name="password"]').type("123456");
-
+    cy.contains("Police Login").click();
+    cy.get("#email").type("officer@police.gov");
+    cy.get("#password").type("police123");
     cy.get('button[type="submit"]').click();
-
+    
     // Verify dashboard
-    cy.contains("Dashboard");
-
-    // Go to complaints page
-    cy.visit("/police/complaints");
-
+    cy.contains("Officer Dashboard").should("exist");
+    
+    // Go to complaints tab
+    cy.contains("button", "Complaints").click();
+    
     // Check complaints list appears
-    cy.contains("Complaints");
-
+    cy.contains("Complaint Management").should("exist");
+    cy.contains("Emma Wilson").should("exist"); // One of the mock complaints
+    
+    // Take screenshot evidence
+    cy.screenshot("evidence-police-complaints");
   });
-
 });

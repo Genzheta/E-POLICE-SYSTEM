@@ -3,6 +3,7 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   allowCypressEnv: false,
+  video: true,
 
   e2e: {
     // Base URL is your frontend React app

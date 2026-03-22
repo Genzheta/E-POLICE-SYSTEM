@@ -31,18 +31,22 @@ export default function App() {
   const handleLogin = (email: string, password: string, role: UserRole) => {
     // Mock authentication - in real app, this would call an API
     const mockUsers = {
-      citizen: { name: 'John Doe', email: 'demo@citizen.com' },
-      police: { name: 'Officer Davis', email: 'officer@police.gov' },
-      admin: { name: 'Admin Smith', email: 'admin@epolice.gov' }
+      citizen: { name: 'John Doe', email: 'demo@citizen.com', password: 'demo123' },
+      police: { name: 'Officer Davis', email: 'officer@police.gov', password: 'police123' },
+      admin: { name: 'Admin Smith', email: 'admin@epolice.gov', password: 'admin123' }
     };
 
-    setUser({
-      //name: mockUsers[role].name,
-      name: mockUsers[role as keyof typeof mockUsers].name,
-      email: email,
-      role: role
-    });
-    setCurrentPage('dashboard');
+    const targetUser = mockUsers[role as keyof typeof mockUsers];
+    if (email === targetUser.email && password === targetUser.password) {
+      setUser({
+        name: targetUser.name,
+        email: email,
+        role: role
+      });
+      setCurrentPage('dashboard');
+      return true;
+    }
+    return false;
   };
 
   const handleLogout = () => {

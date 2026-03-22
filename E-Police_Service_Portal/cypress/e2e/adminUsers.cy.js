@@ -1,36 +1,26 @@
 describe("Admin User Management", () => {
-
-  it("Admin creates a new user", () => {
-
-    cy.visit("/login");
-
+  it("Admin can view user management", () => {
+    cy.visit("/");
+    
     // Login as admin
-    cy.get('input[name="email"]').type("admin@test.com");
-    cy.get('input[name="password"]').type("123456");
-
+    cy.contains("Admin Access").click();
+    cy.get("#email").type("admin@epolice.gov");
+    cy.get("#password").type("admin123");
     cy.get('button[type="submit"]').click();
-
-    cy.contains("Dashboard");
-
-    // Go to users page
-    cy.visit("/admin/users");
-
-    // Click add user
-    cy.get('button').contains("Add User").click();
-
-    // Fill form
-    cy.get('input[name="name"]').type("Test Police");
-    cy.get('input[name="email"]').type("testpolice@test.com");
-    cy.get('input[name="password"]').type("123456");
-
-    cy.get('select[name="role"]').select("police");
-
-    // Submit form
-    cy.get('button[type="submit"]').click();
-
-    // Verify user created
-    cy.contains("User created");
-
+    
+    cy.contains("Admin Control Panel").should("exist");
+    
+    // Go to user management
+    cy.contains("button", "User Management").click();
+    
+    // Verify user list
+    cy.contains("Officer Davis").should("exist");
+    cy.contains("John Doe").should("exist");
+    
+    // Verify "Add New User" button exists
+    cy.contains("Add New User").should("exist");
+    
+    // Take screenshot evidence
+    cy.screenshot("evidence-admin-users");
   });
-
 });

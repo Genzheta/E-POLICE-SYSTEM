@@ -1,5 +1,11 @@
 // server.js
 
+//mongodb+srv://
+// khbsithmanthi_db_user:xVyFe02BLMrphbFU
+// @police.pdu8ewv.mongodb.net/?appName=police
+
+
+//y3dneuphMQRAdMJG
 
 const express = require("express");
 const cors = require("cors");
