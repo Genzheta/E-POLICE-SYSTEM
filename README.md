@@ -32,7 +32,25 @@ This repository is organized into a monorepo setup consisting of two main direct
 - npm (Node Package Manager)
 - A running MongoDB instance or connection string for the backend.
 
+### Environment Setup
 
+This project uses environment variables for configuration. To set these up:
+
+1. **Backend Configuration:**
+   - Navigate to the `E-POLICE-SERVER` directory.
+   - Copy the `.env.example` file to create your own `.env` file:
+     ```bash
+     cp .env.example .env
+     ```
+   - Open the new `.env` file and replace the placeholder values for `MONGO_URI` and `JWT_SECRET` with your actual secure credentials.
+
+2. **Frontend Configuration:**
+   - Navigate to the `E-Police_Service_Portal` directory.
+   - Copy the `.env.example` file to create your own `.env` file:
+     ```bash
+     cp .env.example .env
+     ```
+   - Ensure `VITE_API_BASE_URL` points to your running backend (defaults to `http://localhost:4000/api`).
 
 ### 1. Backend Setup (`E-POLICE-SERVER`)
 
