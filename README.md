@@ -32,6 +32,8 @@ This repository is organized into a monorepo setup consisting of two main direct
 - npm (Node Package Manager)
 - A running MongoDB instance or connection string for the backend.
 
+
+
 ### 1. Backend Setup (`E-POLICE-SERVER`)
 
 1. Open a terminal and navigate to the backend directory:
