@@ -1,0 +1,38 @@
+name: E-Police CI Pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Backend Dependencies
+        working-directory: ./E-POLICE-SERVER
+        run: npm install
+      - name: Run Backend Tests (Jest)
+        working-directory: ./E-POLICE-SERVER
+        run: npm test
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Frontend Dependencies
+        working-directory: ./E-Police_Service_Portal
+        run: npm install
+      - name: Run Frontend Tests (Vitest)
+        working-directory: ./E-Police_Service_Portal
+        run: npm test

@@ -1,5 +1,7 @@
 // src/app/components/Dashboard/AdminDashboard.tsx
 
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -80,6 +82,22 @@ const systemLogs = [
 ];
 
 export function AdminDashboard({ userName }: AdminDashboardProps) {
+  const [users, setUsers] = useState(mockUsers);
+
+  const handleAddUser = () => {
+    const id = 'U-' + String(Math.floor(100 + Math.random() * 900));
+    const newUser = {
+      id,
+      name: 'Mock Generated User',
+      email: `auto${Math.floor(Math.random() * 1000)}@example.com`,
+      role: 'citizen',
+      status: 'active',
+      registered: new Date().toISOString().split('T')[0]
+    };
+    setUsers([newUser, ...users]);
+    toast.success(`Account for ${id} created successfully.`);
+  };
+
   const getStatusBadge = (status: string) => {
     return status === 'active' 
       ? <Badge className="bg-green-600">Active</Badge>
@@ -117,7 +135,7 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Users</p>
-                  <p className="text-2xl">10,248</p>
+                  <p className="text-2xl">{(10244 + users.length).toLocaleString()}</p>
                   <p className="text-xs text-green-600 mt-1">↑ 12% this month</p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-full">
@@ -380,7 +398,7 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
                     <CardTitle>User Management</CardTitle>
                     <CardDescription>Manage all system users and their permissions</CardDescription>
                   </div>
-                  <Button className="bg-purple-900">
+                  <Button className="bg-purple-900" onClick={handleAddUser}>
                     <Users className="h-4 w-4 mr-2" />
                     Add New User
                   </Button>
@@ -400,7 +418,7 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockUsers.map((user) => (
+                    {users.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell className="font-mono text-sm">{user.id}</TableCell>
                         <TableCell>{user.name}</TableCell>
@@ -410,13 +428,13 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
                         <TableCell>{user.registered}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => toast.info('View user details feature coming soon')}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => toast.info('Edit user feature coming soon')}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                            <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700" onClick={() => toast.error('Delete user action restricted')}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -484,7 +502,7 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
                             <p className="font-medium">Session Timeout</p>
                             <p className="text-sm text-gray-600">Auto-logout after 30 minutes</p>
                           </div>
-                          <Button size="sm" variant="outline">Configure</Button>
+                          <Button size="sm" variant="outline" onClick={() => toast.info('Session config window opening...')}>Configure</Button>
                         </div>
                       </div>
                     </div>
@@ -544,14 +562,14 @@ export function AdminDashboard({ userName }: AdminDashboardProps) {
                         <p className="font-medium">Last Backup</p>
                         <p className="text-sm text-gray-600">February 17, 2026 at 2:00 AM</p>
                       </div>
-                      <Button variant="outline">Backup Now</Button>
+                      <Button variant="outline" onClick={() => toast.success('Database backup initiated')}>Backup Now</Button>
                     </div>
                     <div className="flex items-center justify-between p-4 border rounded">
                       <div>
                         <p className="font-medium">Database Size</p>
                         <p className="text-sm text-gray-600">2.4 GB</p>
                       </div>
-                      <Button variant="outline">Optimize</Button>
+                      <Button variant="outline" onClick={() => toast.success('Database optimization complete')}>Optimize</Button>
                     </div>
                   </div>
                 </CardContent>

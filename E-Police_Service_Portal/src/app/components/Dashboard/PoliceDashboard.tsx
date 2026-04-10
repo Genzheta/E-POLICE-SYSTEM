@@ -60,6 +60,8 @@ const mockCitizens = [
 
 export function PoliceDashboard({ userName }: PoliceDashboardProps) {
   const [showIssueTicketForm, setShowIssueTicketForm] = useState(false);
+  const [showNewCaseForm, setShowNewCaseForm] = useState(false);
+  const [cases, setCases] = useState(mockCases);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -103,6 +105,24 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
     toast.success('Case updated successfully!');
   };
 
+  const handleNewCase = (e: React.FormEvent) => {
+    e.preventDefault();
+    const citizenName = (document.getElementById('citizen-name') as HTMLInputElement)?.value || 'Unknown Reporter';
+    
+    const newCase = {
+      id: `CS-2026-${Math.floor(Math.random() * 900) + 100}`,
+      type: 'General Case',
+      citizen: citizenName,
+      filedDate: new Date().toISOString().split('T')[0],
+      status: 'investigating',
+      priority: 'high'
+    };
+
+    setCases([newCase, ...cases]);
+    toast.success('Case successfully created!');
+    setShowNewCaseForm(false);
+  };
+
   const handleProcessReport = () => {
     toast.success('Report processed and sent to citizen!');
   };
@@ -125,7 +145,7 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Active Cases</p>
-                  <p className="text-2xl">{mockCases.filter(c => c.status === 'investigating').length}</p>
+                  <p className="text-2xl">{cases.filter(c => c.status === 'investigating').length}</p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-full">
                   <FileText className="h-6 w-6 text-blue-600" />
@@ -204,66 +224,151 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
 
           {/* Cases Management Tab */}
           <TabsContent value="cases">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Case Management</CardTitle>
-                    <CardDescription>Manage and track all active cases</CardDescription>
-                  </div>
-                  <Button className="bg-blue-900">
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Case
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <div className="flex gap-2">
-                    <Input placeholder="Search cases..." className="max-w-sm" />
-                    <Button variant="outline">
-                      <Search className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+            <div className="grid gap-6">
+              {!showNewCaseForm ? (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>Case Management</CardTitle>
+                        <CardDescription>Manage and track all active cases</CardDescription>
+                      </div>
+                      <Button className="bg-blue-900" onClick={() => setShowNewCaseForm(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Case
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4">
+                      <div className="flex gap-2">
+                        <Input placeholder="Search cases..." className="max-w-sm" />
+                        <Button variant="outline" onClick={() => toast.info('Searching cases...')}>
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
 
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Case ID</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Citizen</TableHead>
-                      <TableHead>Filed Date</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockCases.map((caseItem) => (
-                      <TableRow key={caseItem.id}>
-                        <TableCell className="font-mono text-sm">{caseItem.id}</TableCell>
-                        <TableCell>{caseItem.type}</TableCell>
-                        <TableCell>{caseItem.citizen}</TableCell>
-                        <TableCell>{caseItem.filedDate}</TableCell>
-                        <TableCell>{getPriorityBadge(caseItem.priority)}</TableCell>
-                        <TableCell>{getStatusBadge(caseItem.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={handleUpdateCase}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Case ID</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Citizen</TableHead>
+                          <TableHead>Filed Date</TableHead>
+                          <TableHead>Priority</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {cases.map((caseItem) => (
+                          <TableRow key={caseItem.id}>
+                            <TableCell className="font-mono text-sm">{caseItem.id}</TableCell>
+                            <TableCell>{caseItem.type}</TableCell>
+                            <TableCell>{caseItem.citizen}</TableCell>
+                            <TableCell>{caseItem.filedDate}</TableCell>
+                            <TableCell>{getPriorityBadge(caseItem.priority)}</TableCell>
+                            <TableCell>{getStatusBadge(caseItem.status)}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" onClick={() => toast.info('View case details loading...')}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={handleUpdateCase}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Open New Case</CardTitle>
+                    <CardDescription>File a new case report into the system</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleNewCase} className="space-y-4">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="case-type">Case Type</Label>
+                          <Select required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="theft">Theft</SelectItem>
+                              <SelectItem value="burglary">Burglary</SelectItem>
+                              <SelectItem value="assault">Assault</SelectItem>
+                              <SelectItem value="fraud">Fraud / Identity Theft</SelectItem>
+                              <SelectItem value="vehicle">Stolen Vehicle</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="priority">Priority</Label>
+                          <Select required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="low">Low</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="citizen-name">Citizen/Reporter Name</Label>
+                          <Input id="citizen-name" placeholder="John Doe" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="citizen-contact">Citizen Contact</Label>
+                          <Input id="citizen-contact" placeholder="+1234567890" required />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="case-description">Case Description</Label>
+                        <Textarea 
+                          id="case-description" 
+                          placeholder="Provide a detailed description of the incident..." 
+                          rows={5}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="case-evidence">Upload Initial Evidence (Optional)</Label>
+                        <Input id="case-evidence" type="file" multiple />
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button type="submit" className="bg-blue-900">
+                          Create Case
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={() => setShowNewCaseForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           {/* Complaints Tab */}
@@ -297,10 +402,10 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
                         <TableCell>{getStatusBadge(complaint.status)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => toast.info('View complaint details loading...')}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => toast.success('Response draft opened')}>
                               Respond
                             </Button>
                           </div>
@@ -474,7 +579,7 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
                         <TableCell>{getStatusBadge(request.status)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => toast.info('View request details loading...')}>
                               <Eye className="h-4 w-4" />
                             </Button>
                             {request.status === 'pending' && (
@@ -507,7 +612,7 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
                 <div className="mb-4">
                   <div className="flex gap-2">
                     <Input placeholder="Search citizens..." className="max-w-sm" />
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => toast.info('Searching citizens...')}>
                       <Search className="h-4 w-4" />
                     </Button>
                   </div>
@@ -533,7 +638,7 @@ export function PoliceDashboard({ userName }: PoliceDashboardProps) {
                         <TableCell>{citizen.phone}</TableCell>
                         <TableCell>{citizen.registeredDate}</TableCell>
                         <TableCell>
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => toast.info('View citizen profile loading...')}>
                             <Eye className="h-4 w-4 mr-1" />
                             View
                           </Button>

@@ -32,8 +32,9 @@ describe('E-Police System Integration Tests', () => {
     // Matches LoginPage.tsx: <Button>Login</Button>
     const loginBtn = screen.getByRole('button', { name: /^login$/i });
 
+    const demoPassword = import.meta.env.VITE_CITIZEN_PASSWORD || 'demo123';
     fireEvent.change(emailInput, { target: { value: 'demo@citizen.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'demo123' } });
+    fireEvent.change(passwordInput, { target: { value: demoPassword } });
     fireEvent.click(loginBtn);
 
     // 4. Verify navigation to Citizen Dashboard (Matches CitizenDashboard.tsx welcome text)
@@ -58,8 +59,9 @@ describe('E-Police System Integration Tests', () => {
     const passwordInput = screen.getByPlaceholderText(/enter your password/i);
     const loginBtn = screen.getByRole('button', { name: /secure login/i });
 
+    const policePassword = import.meta.env.VITE_POLICE_PASSWORD || 'police123';
     fireEvent.change(emailInput, { target: { value: 'officer@police.gov' } });
-    fireEvent.change(passwordInput, { target: { value: 'police123' } });
+    fireEvent.change(passwordInput, { target: { value: policePassword } });
     fireEvent.click(loginBtn);
 
     // 3. Verify Police Dashboard (Matches PoliceDashboard.tsx <CardTitle>)
@@ -151,8 +153,9 @@ describe('E-Police System Integration Tests', () => {
     fireEvent.click(screen.getByRole('button', { name: /admin access/i }));
     await waitFor(() => expect(screen.getAllByText(/admin access/i).length).toBeGreaterThan(0));
     
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
     fireEvent.change(screen.getByPlaceholderText(/enter your email/i), { target: { value: 'admin@epolice.gov' } });
-    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: 'admin123' } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: adminPassword } });
     fireEvent.click(screen.getByRole('button', { name: /secure login/i }));
 
     // 2. Wait for Dashboard, get Logout button

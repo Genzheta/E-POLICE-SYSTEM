@@ -1,11 +1,5 @@
 // server.js
 
-//mongodb+srv://
-// khbsithmanthi_db_user:xVyFe02BLMrphbFU
-// @police.pdu8ewv.mongodb.net/?appName=police
-
-
-//y3dneuphMQRAdMJG
 
 const express = require("express");
 const cors = require("cors");
@@ -14,12 +8,11 @@ require("dotenv").config();
 // Import database connection
 const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+
 // Initialize Express app
 const app = express();
 
-// Set Mongoose strictQuery globally (Mongoose 9+)
 const mongoose = require("mongoose");
-
 // New rule for Mongoose 9+
 mongoose.set("strictQuery", true);
 

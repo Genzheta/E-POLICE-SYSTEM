@@ -7,7 +7,7 @@ describe("Login Test", () => {
     
     // Fill login form
     cy.get("#email").type("admin@epolice.gov");
-    cy.get("#password").type("admin123");
+    cy.get("#password").type(Cypress.env("ADMIN_PASSWORD") || "admin123");
     
     // Submit
     cy.get('button[type="submit"]').click();

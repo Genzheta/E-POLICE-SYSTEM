@@ -59,6 +59,19 @@ const mockCases = [
 
 export function CitizenDashboard({ userName }: CitizenDashboardProps) {
   const [selectedFine, setSelectedFine] = useState<string | null>(null);
+  const [fines, setFines] = useState(mockFines);
+  const [complaints, setComplaints] = useState(mockComplaints);
+  const [complaintType, setComplaintType] = useState('');
+  const [reports, setReports] = useState(mockReports);
+  const [reportType, setReportType] = useState('');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    fullName: userName,
+    email: 'demo@citizen.com',
+    phone: '+1 (555) 123-4567',
+    nationalId: '123456789V',
+    address: '123 Main Street, Capital City, 10001'
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -85,22 +98,59 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
   };
 
   const handlePayFine = (fineId: string) => {
+    setFines(fines.map(f => f.id === fineId ? { ...f, status: 'paid' } : f));
     toast.success('Payment processed successfully! Receipt sent to your email.');
     setSelectedFine(null);
   };
 
-  const handleSubmitComplaint = (e: React.FormEvent) => {
+  const handleSubmitComplaint = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success('Complaint submitted successfully! Reference ID: CP-2026-' + Math.floor(Math.random() * 1000));
+    const id = 'CP-2026-' + Math.floor(100 + Math.random() * 900);
+    const typeLabels: Record<string, string> = {
+      theft: 'Theft Report',
+      noise: 'Noise Complaint',
+      vandalism: 'Vandalism',
+      harassment: 'Harassment',
+      other: 'Other'
+    };
+    const newComplaint = {
+      id,
+      date: new Date().toISOString().split('T')[0],
+      type: complaintType ? (typeLabels[complaintType] || complaintType) : 'General Complaint',
+      status: 'in-progress',
+      priority: 'medium'
+    };
+    setComplaints([newComplaint, ...complaints]);
+    toast.success(`Complaint submitted successfully! Reference ID: ${id}`);
+    e.currentTarget.reset();
+    setComplaintType('');
   };
 
-  const handleRequestReport = (e: React.FormEvent) => {
+  const handleRequestReport = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const id = 'RP-2026-' + Math.floor(100 + Math.random() * 900);
+    const typeLabels: Record<string, string> = {
+      character: 'Character Certificate',
+      accident: 'Accident Report',
+      lost: 'Lost Item Report',
+      verification: 'Background Verification',
+      incident: 'Incident Report'
+    };
+    const newReport = {
+      id,
+      type: reportType ? (typeLabels[reportType] || reportType) : 'General Report',
+      requestDate: new Date().toISOString().split('T')[0],
+      status: 'processing',
+      estimatedDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    };
+    setReports([newReport, ...reports]);
     toast.success('Report request submitted! You will receive it via email within 3-5 business days.');
+    e.currentTarget.reset();
+    setReportType('');
   };
 
-  const totalPending = mockFines.filter(f => f.status === 'pending').reduce((sum, f) => sum + f.amount, 0);
-  const totalPaid = mockFines.filter(f => f.status === 'paid').reduce((sum, f) => sum + f.amount, 0);
+  const totalPending = fines.filter(f => f.status === 'pending').reduce((sum, f) => sum + f.amount, 0);
+  const totalPaid = fines.filter(f => f.status === 'paid').reduce((sum, f) => sum + f.amount, 0);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
@@ -148,7 +198,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Active Complaints</p>
-                  <p className="text-2xl">{mockComplaints.filter(c => c.status === 'in-progress').length}</p>
+                  <p className="text-2xl">{complaints.filter(c => c.status === 'in-progress').length}</p>
                 </div>
                 <div className="bg-orange-100 p-3 rounded-full">
                   <AlertCircle className="h-6 w-6 text-orange-600" />
@@ -162,7 +212,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Pending Reports</p>
-                  <p className="text-2xl">{mockReports.filter(r => r.status === 'processing').length}</p>
+                  <p className="text-2xl">{reports.filter(r => r.status === 'processing').length}</p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-full">
                   <FileText className="h-6 w-6 text-blue-600" />
@@ -218,7 +268,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockFines.map((fine) => (
+                    {fines.map((fine) => (
                       <TableRow key={fine.id}>
                         <TableCell className="font-mono text-sm">{fine.id}</TableCell>
                         <TableCell>{fine.date}</TableCell>
@@ -236,7 +286,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                               Pay Now
                             </Button>
                           ) : (
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => toast.success(`Downloading receipt for ${fine.id}...`)}>
                               <Download className="h-4 w-4 mr-1" />
                               Receipt
                             </Button>
@@ -262,7 +312,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                   <form onSubmit={handleSubmitComplaint} className="space-y-4">
                     <div>
                       <Label htmlFor="complaint-type">Complaint Type</Label>
-                      <Select required>
+                      <Select required onValueChange={setComplaintType} key={`select-${complaints.length}`}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -308,7 +358,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockComplaints.map((complaint) => (
+                    {complaints.map((complaint) => (
                       <div key={complaint.id} className="border rounded-lg p-4">
                         <div className="flex items-start justify-between mb-2">
                           <div>
@@ -321,7 +371,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                           <p>Filed: {complaint.date}</p>
                           <p>Priority: <span className="capitalize">{complaint.priority}</span></p>
                         </div>
-                        <Button size="sm" variant="outline" className="mt-3 w-full">
+                        <Button size="sm" variant="outline" className="mt-3 w-full" onClick={() => toast.info('Complaint details loading...')}>
                           View Details
                         </Button>
                       </div>
@@ -344,7 +394,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                   <form onSubmit={handleRequestReport} className="space-y-4">
                     <div>
                       <Label htmlFor="report-type">Report Type</Label>
-                      <Select required>
+                      <Select required onValueChange={setReportType} key={`select-report-${reports.length}`}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select report type" />
                         </SelectTrigger>
@@ -388,7 +438,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockReports.map((report) => (
+                    {reports.map((report) => (
                       <div key={report.id} className="border rounded-lg p-4">
                         <div className="flex items-start justify-between mb-2">
                           <div>
@@ -402,7 +452,11 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                           <p>Estimated: {report.estimatedDate}</p>
                         </div>
                         {report.status === 'ready' && (
-                          <Button size="sm" className="mt-3 w-full bg-green-600 hover:bg-green-700">
+                          <Button 
+                            size="sm" 
+                            className="mt-3 w-full bg-green-600 hover:bg-green-700"
+                            onClick={() => toast.success(`Downloading report ${report.id}...`)}
+                          >
                             <Download className="h-4 w-4 mr-2" />
                             Download Report
                           </Button>
@@ -454,7 +508,7 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                             : 'This case has been successfully resolved and closed.'}
                         </p>
                       </div>
-                      <Button variant="outline" className="mt-4">
+                      <Button variant="outline" className="mt-4" onClick={() => toast.info('Case timeline loading...')}>
                         View Full Details
                       </Button>
                     </div>
@@ -475,10 +529,10 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
                     <div className="bg-blue-900 text-white w-20 h-20 rounded-full flex items-center justify-center text-2xl">
-                      {userName.charAt(0)}
+                      {profileData.fullName.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold">{userName}</h3>
+                      <h3 className="text-xl font-semibold">{profileData.fullName}</h3>
                       <p className="text-gray-600">Registered Citizen</p>
                     </div>
                   </div>
@@ -486,29 +540,66 @@ export function CitizenDashboard({ userName }: CitizenDashboardProps) {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Full Name</Label>
-                      <Input value={userName} readOnly />
+                      <Input 
+                        value={profileData.fullName} 
+                        readOnly={!isEditingProfile}
+                        className={isEditingProfile ? "border-blue-500" : ""}
+                        onChange={(e) => setProfileData({...profileData, fullName: e.target.value})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Email</Label>
-                      <Input value="demo@citizen.com" readOnly />
+                      <Input 
+                        value={profileData.email} 
+                        readOnly={!isEditingProfile}
+                        className={isEditingProfile ? "border-blue-500" : ""}
+                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Phone Number</Label>
-                      <Input value="+1 (555) 123-4567" readOnly />
+                      <Input 
+                        value={profileData.phone} 
+                        readOnly={!isEditingProfile}
+                        className={isEditingProfile ? "border-blue-500" : ""}
+                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>National ID</Label>
-                      <Input value="123456789V" readOnly />
+                      <Input 
+                        value={profileData.nationalId} 
+                        readOnly={!isEditingProfile}
+                        className={isEditingProfile ? "border-blue-500" : ""}
+                        onChange={(e) => setProfileData({...profileData, nationalId: e.target.value})}
+                      />
                     </div>
                     <div className="space-y-2 md:col-span-2">
                       <Label>Address</Label>
-                      <Input value="123 Main Street, Capital City, 10001" readOnly />
+                      <Input 
+                        value={profileData.address} 
+                        readOnly={!isEditingProfile}
+                        className={isEditingProfile ? "border-blue-500" : ""}
+                        onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                      />
                     </div>
                   </div>
 
                   <div className="flex gap-3">
-                    <Button variant="outline">Edit Profile</Button>
-                    <Button variant="outline">Change Password</Button>
+                    {isEditingProfile ? (
+                      <>
+                        <Button className="bg-blue-900" onClick={() => {
+                          setIsEditingProfile(false);
+                          toast.success('Profile updated successfully!');
+                        }}>Save Changes</Button>
+                        <Button variant="outline" onClick={() => setIsEditingProfile(false)}>Cancel</Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="outline" onClick={() => setIsEditingProfile(true)}>Edit Profile</Button>
+                        <Button variant="outline" onClick={() => toast.info('Change Password feature coming soon.')}>Change Password</Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardContent>

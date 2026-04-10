@@ -5,7 +5,7 @@ describe("Citizen Complaint Workflow", () => {
     // Login as citizen
     cy.contains("Citizen Portal").click();
     cy.get("#email").type("demo@citizen.com");
-    cy.get("#password").type("demo123");
+    cy.get("#password").type(Cypress.env("CITIZEN_PASSWORD") || "demo123");
     cy.get('button[type="submit"]').click();
     
     // Verify dashboard

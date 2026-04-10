@@ -5,7 +5,7 @@ describe("Admin User Management", () => {
     // Login as admin
     cy.contains("Admin Access").click();
     cy.get("#email").type("admin@epolice.gov");
-    cy.get("#password").type("admin123");
+    cy.get("#password").type(Cypress.env("ADMIN_PASSWORD") || "admin123");
     cy.get('button[type="submit"]').click();
     
     cy.contains("Admin Control Panel").should("exist");

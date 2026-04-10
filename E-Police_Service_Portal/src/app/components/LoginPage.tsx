@@ -12,10 +12,11 @@ import { Shield, UserCircle, ShieldAlert, Lock } from 'lucide-react';
 interface LoginPageProps {
   role: 'citizen' | 'police' | 'admin';
   onLogin: (email: string, password: string, role: 'citizen' | 'police' | 'admin') => boolean | void;
+  onRegister?: (name: string, email: string, role: 'citizen' | 'police' | 'admin') => void;
   onBack: () => void;
 }
 
-export function LoginPage({ role, onLogin, onBack }: LoginPageProps) {
+export function LoginPage({ role, onLogin, onRegister, onBack }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [registerData, setRegisterData] = useState({
@@ -42,8 +43,12 @@ export function LoginPage({ role, onLogin, onBack }: LoginPageProps) {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (registerData.password === registerData.confirmPassword) {
-      // automatically log them in for mock
-      onLogin(registerData.email, registerData.password, 'citizen');
+      if (onRegister) {
+        onRegister(registerData.name, registerData.email, 'citizen');
+      } else {
+        // automatically log them in for mock if no onRegister provided
+        onLogin(registerData.email, registerData.password, 'citizen');
+      }
     } else {
       toast.error('Passwords do not match');
     }

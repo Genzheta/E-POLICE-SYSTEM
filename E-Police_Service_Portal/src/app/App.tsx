@@ -31,9 +31,9 @@ export default function App() {
   const handleLogin = (email: string, password: string, role: UserRole) => {
     // Mock authentication - in real app, this would call an API
     const mockUsers = {
-      citizen: { name: 'John Doe', email: 'demo@citizen.com', password: 'demo123' },
-      police: { name: 'Officer Davis', email: 'officer@police.gov', password: 'police123' },
-      admin: { name: 'Admin Smith', email: 'admin@epolice.gov', password: 'admin123' }
+      citizen: { name: 'John Doe', email: 'demo@citizen.com', password: import.meta.env.VITE_CITIZEN_PASSWORD || 'demo123' },
+      police: { name: 'Officer Davis', email: 'officer@police.gov', password: import.meta.env.VITE_POLICE_PASSWORD || 'police123' },
+      admin: { name: 'Admin Smith', email: 'admin@epolice.gov', password: import.meta.env.VITE_ADMIN_PASSWORD || 'admin123' }
     };
 
     const targetUser = mockUsers[role as keyof typeof mockUsers];
@@ -47,6 +47,15 @@ export default function App() {
       return true;
     }
     return false;
+  };
+
+  const handleRegister = (name: string, email: string, role: UserRole) => {
+    setUser({
+      name,
+      email,
+      role
+    });
+    setCurrentPage('dashboard');
   };
 
   const handleLogout = () => {
@@ -76,6 +85,7 @@ export default function App() {
         <LoginPage 
           role={selectedRole}
           onLogin={handleLogin}
+          onRegister={handleRegister}
           onBack={handleBackToHome}
         />
       )}

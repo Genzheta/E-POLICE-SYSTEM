@@ -5,7 +5,7 @@ describe("Police Issues Fine", () => {
     // Login as police
     cy.contains("Police Login").click();
     cy.get("#email").type("officer@police.gov");
-    cy.get("#password").type("police123");
+    cy.get("#password").type(Cypress.env("POLICE_PASSWORD") || "police123");
     cy.get('button[type="submit"]').click();
     
     // Verify dashboard
